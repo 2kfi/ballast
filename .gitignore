@@ -1,0 +1,16 @@
+# built binary
+/goreg
+/goreg-*
+
+# local data + logs (never commit registry contents or secrets)
+data/
+*.log
+audit.log
+
+# real config (commit only goreg.example.json)
+goreg.json
+
+# editor / OS noise
+.DS_Store
+.idea/
+.vscode/

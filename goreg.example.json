@@ -1,0 +1,18 @@
+{
+  "addr": ":5000",
+  "storage": "/data",
+  "prefix": "goreg",
+  "users_sha256": {
+    "admin": "SALT:HEX (run: goreg hash <token>)"
+  },
+  "roles": {
+    "admin": "admin"
+  },
+  "allowAnonymous": false,
+  "behindProxy": true,
+  "readOnly": false,
+  "auditLog": "/data/audit.log",
+  "upstreams": {},
+  "ttl": { "version": "24h", "floating": "15m" },
+  "defaultPlatform": "linux/amd64"
+}

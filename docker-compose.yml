@@ -1,0 +1,47 @@
+# goreg — pull-through OCI mirror. Plain HTTP on :5000 by default.
+#
+#   cp goreg.example.json goreg.json   # then fill in users_sha256 (see README)
+#   docker compose up -d --build
+#   open http://localhost:5000/ui
+#
+# With automatic TLS (recommended for anything beyond localhost):
+#   DOMAIN=registry.example.com docker compose --profile tls up -d --build
+
+services:
+  goreg:
+    build: .
+    image: goreg:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./goreg.json:/etc/goreg/goreg.json:ro
+      - goreg-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:5000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # TLS termination in front of goreg (goreg itself stays boring HTTP).
+  # Set behindProxy:true in goreg.json when you enable this.
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["tls"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      goreg:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  goreg-data:
+  caddy-data:
+  caddy-config:

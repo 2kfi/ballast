@@ -43,6 +43,15 @@ With automatic HTTPS (recommended past localhost):
 DOMAIN=registry.example.com docker compose --profile tls up -d --build
 ```
 
+Prefer a prebuilt image? Every `v*` tag publishes one, plus multi-arch binaries:
+
+```bash
+docker pull ghcr.io/2kfi/ballast:latest
+# or grab a binary from the GitHub Releases page (linux/darwin, amd64/arm64)
+```
+
+Docs: [`docs/configuration.md`](docs/configuration.md) · [`docs/security.md`](docs/security.md) · [`docs/operations.md`](docs/operations.md) · [`docs/api.md`](docs/api.md)
+
 ## What's inside
 
 | Command | What it does |

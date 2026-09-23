@@ -10,6 +10,25 @@ audit.log
 # real config (commit only ballast.example.json)
 ballast.json
 
+# release artifacts (built by CI on tag push, never committed)
+dist/
+*.tar.gz
+*.zip
+checksums.txt
+
+# go test artifacts
+*.test
+*.out
+coverage.html
+
+# local env + compose overrides (secrets live here, not in git)
+.env
+docker-compose.override.yml
+
+# scratch dirs for local serve/gc experiments
+tmp/
+scratch/
+
 # editor / OS noise
 .DS_Store
 .idea/

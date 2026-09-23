@@ -15,8 +15,8 @@ import (
 
 var versionTag = regexp.MustCompile(`^[vV]?\d`)
 
-// debug logs only when GOREG_DEBUG is set (read once at startup).
-var debugOn = os.Getenv("GOREG_DEBUG") != ""
+// debug logs only when BALLAST_DEBUG is set (read once at startup).
+var debugOn = os.Getenv("BALLAST_DEBUG") != ""
 
 func dbg(l *log.Logger, f string, a ...any) {
 	if debugOn {

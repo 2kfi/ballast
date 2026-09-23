@@ -1,14 +1,14 @@
 # built binary
-/goreg
-/goreg-*
+/ballast
+/ballast-*
 
 # local data + logs (never commit registry contents or secrets)
 data/
 *.log
 audit.log
 
-# real config (commit only goreg.example.json)
-goreg.json
+# real config (commit only ballast.example.json)
+ballast.json
 
 # editor / OS noise
 .DS_Store

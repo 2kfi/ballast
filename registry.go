@@ -58,7 +58,7 @@ func NewServer(cfg *Config) (*Server, error) {
 	})
 	srv := &Server{
 		cfg: cfg, s: s,
-		log:     log.New(os.Stdout, "goreg ", log.LstdFlags),
+		log:     log.New(os.Stdout, "ballast ", log.LstdFlags),
 		sess:    map[string]string{},
 		sessAt:  map[string]time.Time{},
 		rlFail:  map[string][]time.Time{},
@@ -73,7 +73,7 @@ func NewServer(cfg *Config) (*Server, error) {
 	}
 	srv.m = &mirror{cfg: cfg, s: s, u: newUpstream(cfg), log: srv.log}
 	if len(cfg.Users) > 0 {
-		srv.log.Printf("WARNING: %d plaintext user(s) in config; migrate to users_sha256 via `goreg hash`", len(cfg.Users))
+		srv.log.Printf("WARNING: %d plaintext user(s) in config; migrate to users_sha256 via `ballast hash`", len(cfg.Users))
 	}
 	return srv, nil
 }
@@ -293,12 +293,12 @@ func (srv *Server) auth(next http.Handler) http.Handler {
 			}
 			srv.rlNoteFail(ip)
 			srv.auditf("auth-fail ip=%s path=%s", ip, r.URL.Path)
-			w.Header().Set("WWW-Authenticate", `Basic realm="goreg"`)
+			w.Header().Set("WWW-Authenticate", `Basic realm="ballast"`)
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 		srv.rlNoteOK(ip)
-		r.Header.Set("X-Goreg-User", user)
+		r.Header.Set("X-Ballast-User", user)
 		// Enforce pull-only roles on mutating methods.
 		if r.Method == http.MethodPut || r.Method == http.MethodDelete || r.Method == http.MethodPatch || r.Method == http.MethodPost {
 			if srv.cfg.ReadOnly {
@@ -362,7 +362,7 @@ func (srv *Server) manifestGet(w http.ResponseWriter, r *http.Request, name, ref
 		}
 		e, ok := srv.s.GetTag(name, ref)
 		if !ok {
-			http.Error(w, "frozen tag not found (run goreg pull first)", http.StatusNotFound)
+			http.Error(w, "frozen tag not found (run ballast pull first)", http.StatusNotFound)
 			return
 		}
 		srv.serveManifest(w, r, name, ref, e)
@@ -485,7 +485,7 @@ func (srv *Server) manifestPut(w http.ResponseWriter, r *http.Request, name, set
 		http.Error(w, "store: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	srv.auditf("push user=%s %s:%s %s", r.Header.Get("X-Goreg-User"), name, set, d)
+	srv.auditf("push user=%s %s:%s %s", r.Header.Get("X-Ballast-User"), name, set, d)
 	w.Header().Set("Docker-Content-Digest", d)
 	w.Header().Set("Location", "/v2/"+name+"/manifests/"+d)
 	w.WriteHeader(http.StatusCreated)
@@ -533,7 +533,7 @@ func (srv *Server) manifestDelete(w http.ResponseWriter, r *http.Request, name, 
 			_ = srv.s.DelTag(name, t)
 		}
 		srv.s.removeEmpty(name)
-		srv.auditf("delete user=%s %s@%s (%d tags)", r.Header.Get("X-Goreg-User"), name, ref, len(match))
+		srv.auditf("delete user=%s %s@%s (%d tags)", r.Header.Get("X-Ballast-User"), name, ref, len(match))
 		w.WriteHeader(http.StatusAccepted)
 		return
 	}
@@ -547,7 +547,7 @@ func (srv *Server) manifestDelete(w http.ResponseWriter, r *http.Request, name, 
 	}
 	_ = srv.s.DelTag(name, ref)
 	srv.s.removeEmpty(name)
-	srv.auditf("delete user=%s %s:%s", r.Header.Get("X-Goreg-User"), name, ref)
+	srv.auditf("delete user=%s %s:%s", r.Header.Get("X-Ballast-User"), name, ref)
 	w.WriteHeader(http.StatusAccepted)
 }
 
@@ -578,7 +578,7 @@ func (srv *Server) blobDelete(w http.ResponseWriter, r *http.Request, name, dige
 		http.Error(w, "store: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	srv.auditf("blob-delete user=%s %s@%s", r.Header.Get("X-Goreg-User"), name, digest)
+	srv.auditf("blob-delete user=%s %s@%s", r.Header.Get("X-Ballast-User"), name, digest)
 	w.WriteHeader(http.StatusAccepted)
 }
 
@@ -845,7 +845,7 @@ func (srv *Server) uploadPut(w http.ResponseWriter, r *http.Request, name, id st
 		http.Error(w, "digest mismatch: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	srv.auditf("blob-push user=%s %s@%s", r.Header.Get("X-Goreg-User"), name, want)
+	srv.auditf("blob-push user=%s %s@%s", r.Header.Get("X-Ballast-User"), name, want)
 	w.Header().Set("Docker-Content-Digest", want)
 	w.Header().Set("Location", "/v2/"+name+"/blobs/"+want)
 	w.WriteHeader(http.StatusCreated)

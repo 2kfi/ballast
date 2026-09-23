@@ -1,38 +1,38 @@
-# goreg — the boring OCI mirror
+# ballast — dead weight that keeps your pulls upright
 
-> A single-binary pull-through container registry cache. No database. No dependencies. No drama.
+> A single-binary pull-through container registry cache. No database. No dependencies. No drama. The boring OCI mirror, on purpose.
 
-`goreg` sits between your machines and Docker Hub (or GHCR, Quay, …) and remembers what it
+`ballast` sits between your machines and Docker Hub (or GHCR, Quay, …) and remembers what it
 fetched — so `latest` can't rug-pull you at 3am, air-gapped clusters still install, and every
 image you shipped last Tuesday is still exactly that image.
 
 Version tags get a long memory (24h). Floating tags like `latest` get a short one (15m).
 Every floating pull also freezes the concrete version it resolved to (`python:3.12` →
-`goreg/python:3.12.1`) — pin your deployments to the frozen copy and upstream tag rewrites
+`ballast/python:3.12.1`) — pin your deployments to the frozen copy and upstream tag rewrites
 stop being your problem.
 
 ## 60-second quickstart
 
 ```bash
 # 1. build (stdlib only — go 1.26, zero dependencies)
-go build -o goreg .
+go build -o ballast .
 
 # 2. hash a token (never store plaintext)
-./goreg hash my-secret-token
-# -> 585e3c7d…:5150b87d…   (salt:hash, paste into goreg.json)
+./ballast hash my-secret-token
+# -> 585e3c7d…:5150b87d…   (salt:hash, paste into ballast.json)
 
 # 3. minimal config
-cp goreg.example.json goreg.json   # fill in users_sha256, set storage dir
+cp ballast.example.json ballast.json   # fill in users_sha256, set storage dir
 
 # 4. run
-./goreg serve -config goreg.json
+./ballast serve -config ballast.json
 open http://localhost:5000/ui      # read-only browser (same BasicAuth token)
 ```
 
 Or with Docker Compose:
 
 ```bash
-cp goreg.example.json goreg.json   # fill in users_sha256
+cp ballast.example.json ballast.json   # fill in users_sha256
 docker compose up -d --build
 open http://localhost:5000/ui
 ```
@@ -47,17 +47,17 @@ DOMAIN=registry.example.com docker compose --profile tls up -d --build
 
 | Command | What it does |
 |---|---|
-| `goreg serve` | pull-through mirror + frozen snapshots + read-only WebUI |
-| `goreg pull python:3.12` | prime the cache now, print the frozen tag it created |
-| `goreg rm python:3.12` | untag live + frozen (blobs stay until GC) |
-| `goreg gc` | dry-run orphan-blob report; `--apply` to delete |
-| `goreg hash <token>` | print a `salt:hash` verifier for `users_sha256` |
+| `ballast serve` | pull-through mirror + frozen snapshots + read-only WebUI |
+| `ballast pull python:3.12` | prime the cache now, print the frozen tag it created |
+| `ballast rm python:3.12` | untag live + frozen (blobs stay until GC) |
+| `ballast gc` | dry-run orphan-blob report; `--apply` to delete |
+| `ballast hash <token>` | print a `salt:hash` verifier for `users_sha256` |
 
 Endpoints: full OCI distribution-spec (`/v2/…`), plus `/ui`, `/api/repos`, `/healthz`.
 
 ## Security model (read this before exposing it)
 
-`goreg` holds supply-chain trust, so it defaults to paranoid:
+`ballast` holds supply-chain trust, so it defaults to paranoid:
 
 - **Fail-closed auth** — refuses to start with no users configured unless you explicitly
   opt into `allowAnonymous`. BasicAuth tokens stored as salted SHA-256 (`users_sha256`),
@@ -78,7 +78,7 @@ spirit in the code; the paranoia is load-bearing.
 
 ```
 docker pull localhost:5000/python:3.12        # live mirror, revalidated on TTL
-docker pull localhost:5000/goreg/python:3.12.1 # frozen: immutable, offline-safe
+docker pull localhost:5000/ballast/python:3.12.1 # frozen: immutable, offline-safe
 ```
 
 Floating tags resolve their concrete version upstream and freeze it. Deleted the frozen tag
@@ -91,8 +91,8 @@ doesn't move until you re-pull.
 {
   "addr": ":5000",
   "storage": "/data",
-  "prefix": "goreg",
-  "users_sha256": { "ci": "<salt:hash from `goreg hash`>" },
+  "prefix": "ballast",
+  "users_sha256": { "ci": "<salt:hash from `ballast hash`>" },
   "roles": { "ci": "pull" },
   "allowAnonymous": false,
   "behindProxy": true,

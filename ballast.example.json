@@ -1,9 +1,9 @@
 {
   "addr": ":5000",
   "storage": "/data",
-  "prefix": "goreg",
+  "prefix": "ballast",
   "users_sha256": {
-    "admin": "SALT:HEX (run: goreg hash <token>)"
+    "admin": "SALT:HEX (run: ballast hash <token>)"
   },
   "roles": {
     "admin": "admin"

@@ -9,13 +9,13 @@ import (
 
 const uiHTML = `<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>goreg</title>
+<title>ballast</title>
 <style>body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#111}
 table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:.4rem .6rem;text-align:left;font-size:.9rem}
 th{background:#f5f5f5}code{font-size:.85em}.muted{color:#666}.badge{display:inline-block;padding:.1rem .4rem;border-radius:4px;font-size:.75rem}
 .frozen{background:#e6f4ea}.floating{background:#fef7e0}.top{display:flex;justify-content:space-between;align-items:baseline}
 input{padding:.4rem .6rem;width:240px}</style></head><body>
-<div class="top"><h1>goreg</h1><span class="muted" id="stats"></span></div>
+<div class="top"><h1>ballast</h1><span class="muted" id="stats"></span></div>
 <p class="muted">Read-only mirror browser. Frozen = immutable snapshot under prefix. Floating = revalidated on TTL.</p>
 <input id="q" placeholder="filter repos…" oninput="render()">
 <table><thead><tr><th>repo</th><th>tag</th><th>digest</th><th>type</th><th>updated</th></tr></thead><tbody id="rows"></tbody></table>

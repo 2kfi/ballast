@@ -1,6 +1,6 @@
-# goreg — pull-through OCI mirror. Plain HTTP on :5000 by default.
+# ballast — pull-through OCI mirror. Plain HTTP on :5000 by default.
 #
-#   cp goreg.example.json goreg.json   # then fill in users_sha256 (see README)
+#   cp ballast.example.json ballast.json   # then fill in users_sha256 (see README)
 #   docker compose up -d --build
 #   open http://localhost:5000/ui
 #
@@ -8,14 +8,14 @@
 #   DOMAIN=registry.example.com docker compose --profile tls up -d --build
 
 services:
-  goreg:
+  ballast:
     build: .
-    image: goreg:latest
+    image: ballast:latest
     ports:
       - "5000:5000"
     volumes:
-      - ./goreg.json:/etc/goreg/goreg.json:ro
-      - goreg-data:/data
+      - ./ballast.json:/etc/ballast/ballast.json:ro
+      - ballast-data:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:5000/healthz"]
@@ -24,8 +24,8 @@ services:
       retries: 3
       start_period: 10s
 
-  # TLS termination in front of goreg (goreg itself stays boring HTTP).
-  # Set behindProxy:true in goreg.json when you enable this.
+  # TLS termination in front of ballast (ballast itself stays boring HTTP).
+  # Set behindProxy:true in ballast.json when you enable this.
   caddy:
     image: caddy:2-alpine
     profiles: ["tls"]
@@ -37,11 +37,11 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
-      goreg:
+      ballast:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  goreg-data:
+  ballast-data:
   caddy-data:
   caddy-config:

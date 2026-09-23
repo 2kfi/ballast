@@ -22,7 +22,7 @@ var cliClient = &http.Client{Timeout: 30 * time.Second}
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmsgprefix)
 	if len(os.Args) < 2 {
-		die("usage: goreg serve|pull|rm|gc|hash [flags]")
+		die("usage: ballast serve|pull|rm|gc|hash [flags]")
 	}
 	switch os.Args[1] {
 	case "serve":
@@ -36,13 +36,13 @@ func main() {
 	case "hash":
 		cmdHash(os.Args[2:])
 	default:
-		die("usage: goreg serve|pull|rm|gc|hash [flags]")
+		die("usage: ballast serve|pull|rm|gc|hash [flags]")
 	}
 }
 
 func cmdServe(args []string) {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
-	cfgPath := fs.String("config", "goreg.json", "config file")
+	cfgPath := fs.String("config", "ballast.json", "config file")
 	fs.Parse(args)
 
 	cfg, err := loadConfig(*cfgPath)
@@ -81,16 +81,16 @@ func cmdServe(args []string) {
 	}
 }
 
-// goreg pull python:3.12  ->  primes the live mirror + frozen copy via our own server
+// ballast pull python:3.12  ->  primes the live mirror + frozen copy via our own server
 func cmdPull(args []string) {
 	fs := flag.NewFlagSet("pull", flag.ExitOnError)
-	cfgPath := fs.String("config", "goreg.json", "config file")
+	cfgPath := fs.String("config", "ballast.json", "config file")
 	addr := fs.String("addr", "", "registry address (defaults to config addr)")
 	user := fs.String("user", "admin", "registry basic-auth user")
 	token := fs.String("token", "", "registry token")
 	fs.Parse(args)
 	if fs.NArg() != 1 {
-		die("usage: goreg pull <image>[:tag]")
+		die("usage: ballast pull <image>[:tag]")
 	}
 	ref := fs.Arg(0)
 	cfg, err := loadConfig(*cfgPath)
@@ -124,13 +124,13 @@ func cmdPull(args []string) {
 	}
 }
 
-// goreg rm <image>[:tag] removes live + frozen tags (blobs stay, prune later)
+// ballast rm <image>[:tag] removes live + frozen tags (blobs stay, prune later)
 func cmdRm(args []string) {
 	fs := flag.NewFlagSet("rm", flag.ExitOnError)
-	cfgPath := fs.String("config", "goreg.json", "config file")
+	cfgPath := fs.String("config", "ballast.json", "config file")
 	fs.Parse(args)
 	if fs.NArg() != 1 {
-		die("usage: goreg rm <image>[:tag]")
+		die("usage: ballast rm <image>[:tag]")
 	}
 	cfg, err := loadConfig(*cfgPath)
 	if err != nil {
@@ -227,12 +227,12 @@ func apiList(base, user, token, path string) ([]string, error) {
 	return out.Tags, nil
 }
 
-// goreg hash <token> prints a salted "salt:hex" verifier for users_sha256.
+// ballast hash <token> prints a salted "salt:hex" verifier for users_sha256.
 func cmdHash(args []string) {
 	fs := flag.NewFlagSet("hash", flag.ExitOnError)
 	fs.Parse(args)
 	if fs.NArg() != 1 {
-		die("usage: goreg hash <token>")
+		die("usage: ballast hash <token>")
 	}
 	salt, err := newSalt()
 	if err != nil {
@@ -241,10 +241,10 @@ func cmdHash(args []string) {
 	fmt.Println(hashToken(fs.Arg(0), salt))
 }
 
-// goreg gc [--apply] removes unreferenced blobs.
+// ballast gc [--apply] removes unreferenced blobs.
 func cmdGC(args []string) {
 	fs := flag.NewFlagSet("gc", flag.ExitOnError)
-	cfgPath := fs.String("config", "goreg.json", "config file")
+	cfgPath := fs.String("config", "ballast.json", "config file")
 	apply := fs.Bool("apply", false, "delete (default dry-run)")
 	fs.Parse(args)
 	cfg, err := loadConfig(*cfgPath)

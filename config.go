@@ -48,9 +48,9 @@ type UpstreamCred struct {
 type Config struct {
 	Addr           string                  `json:"addr"`                     // listen address, e.g. ":5000"
 	Storage        string                  `json:"storage"`                  // data dir
-	Prefix         string                  `json:"prefix"`                   // frozen namespace prefix, default "goreg"
+	Prefix         string                  `json:"prefix"`                   // frozen namespace prefix, default "ballast"
 	Users          map[string]string       `json:"users"`                    // basic-auth user -> plaintext token (legacy; prefer users_sha256)
-	UsersSHA256    map[string]string       `json:"users_sha256,omitempty"`   // user -> "salt:hex(sha256(salt:token))" (use `goreg hash`)
+	UsersSHA256    map[string]string       `json:"users_sha256,omitempty"`   // user -> "salt:hex(sha256(salt:token))" (use `ballast hash`)
 	Roles          map[string]string       `json:"roles,omitempty"`          // user -> "pull"|"push"|"admin" (default "admin")
 	AllowAnonymous bool                    `json:"allowAnonymous,omitempty"` // must be explicit; default false (fail closed)
 	BehindProxy    bool                    `json:"behindProxy,omitempty"`    // set true when TLS terminates at reverse proxy
@@ -80,7 +80,7 @@ func loadConfig(path string) (*Config, error) {
 		c.Storage = "data"
 	}
 	if c.Prefix == "" {
-		c.Prefix = "goreg"
+		c.Prefix = "ballast"
 	}
 	if !validPrefixRe.MatchString(c.Prefix) {
 		return nil, fmt.Errorf("invalid prefix %q: must match %s", c.Prefix, validPrefixRe.String())

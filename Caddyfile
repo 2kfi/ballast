@@ -1,5 +1,5 @@
-# Reverse-proxy with automatic HTTPS in front of goreg.
+# Reverse-proxy with automatic HTTPS in front of ballast.
 # Usage: DOMAIN=registry.example.com docker compose --profile tls up -d
 {$DOMAIN} {
-	reverse_proxy goreg:5000
+	reverse_proxy ballast:5000
 }
